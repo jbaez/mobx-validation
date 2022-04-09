@@ -8,6 +8,7 @@ export class YupAdapter implements ValidationAdapter {
   constructor(schema: ObjectSchema<object>) {
     this._schema = schema;
   }
+
   validate(model: Validatable, property: string): Promise<ValidationError> {
     return new Promise((resolve, reject) => {
       this._schema
@@ -28,5 +29,9 @@ export class YupAdapter implements ValidationAdapter {
           this._errorInit = true;
         });
     });
+  }
+
+  getFields(): string[] {
+    return Object.keys(this._schema.fields);
   }
 }

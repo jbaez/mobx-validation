@@ -10,6 +10,8 @@ export interface Validatable {
 export type ValidationError = string | undefined;
 
 export interface ValidationAdapter {
+  // Returns the fields to validate. Empty defaults to all props of model.
+  getFields: (model: Validatable) => string[];
   // Resolves with ValidationError.
   validate: (model: Validatable, property: string) => Promise<ValidationError>;
 }
@@ -32,16 +34,29 @@ export class Validation {
    */
   constructor(model: Validatable, adapter: ValidationAdapter) {
     // setup validation fields
-    for (const prop in model) {
-      if (typeof model[prop] == 'function') {
-        continue;
+    const fields = adapter.getFields(model);
+    if (fields.length) {
+      for (const field of fields) {
+        this.fields[field] = new ValidationField({
+          model: model,
+          adapter,
+          property: field,
+        });
       }
-      this.fields[prop] = new ValidationField({
-        model: model,
-        adapter,
-        property: prop,
-      });
+    } else {
+      // default to add all props in model
+      for (const prop in model) {
+        if (typeof model[prop] == 'function') {
+          continue;
+        }
+        this.fields[prop] = new ValidationField({
+          model: model,
+          adapter,
+          property: prop,
+        });
+      }
     }
+
     // setup observables
     makeObservable<Validation, 'isEnabled'>(this, {
       fields: observable,

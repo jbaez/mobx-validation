@@ -19,6 +19,7 @@ const remoteValidationMock = jest
 class ModelTest implements Validatable {
   email = '';
   age = 16;
+  notValidatedProp = 1;
   constructor() {
     makeObservable(this, {
       email: observable,
@@ -62,7 +63,7 @@ function getValidationSchema(
 /**
  * Test suite
  */
-describe('Validation1', () => {
+describe('Validation', () => {
   let sut: Validation;
   let model: ModelTest;
   let adapter: YupAdapter;
@@ -250,7 +251,7 @@ describe('Validation1', () => {
 
 type ValidationGroupKeys = 'first' | 'second';
 
-describe('Validation Group1', () => {
+describe('Validation Group', () => {
   let validations: Record<ValidationGroupKeys, Validation>;
   let firstModel: ModelTest;
   let secondModel: ModelTest;
