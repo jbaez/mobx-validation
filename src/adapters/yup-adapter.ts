@@ -1,7 +1,7 @@
 import { Validatable, ValidationAdapter, ValidationError } from '../validation';
 import { ObjectSchema, ValidationError as ValidationErrorYup } from 'yup';
 
-export default class YupAdapter implements ValidationAdapter {
+export class YupAdapter implements ValidationAdapter {
   private readonly _schema: ObjectSchema<object>;
   private _errorInit = false;
 

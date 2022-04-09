@@ -1,6 +1,6 @@
 import { Validation, Validatable, ValidationFields } from '../validation';
 import { ValidationGroup } from '../validation-group';
-import YupAdapter from '../adapters/yup-adapter';
+import { YupAdapter } from '../adapters/yup-adapter';
 import { makeObservable, observable, action, reaction } from 'mobx';
 import { string, number, object, ObjectSchema } from 'yup';
 
