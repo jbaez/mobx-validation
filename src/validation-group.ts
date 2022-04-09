@@ -1,10 +1,10 @@
-import Validation from './validation';
+import { Validation } from './validation';
 import { makeObservable, computed } from 'mobx';
 
 /**
  * Validation Group
  */
-class ValidationGroup<Fields extends string> {
+export class ValidationGroup<Fields extends string> {
   readonly item: Record<Fields, Validation>;
 
   constructor(validations: Record<Fields, Validation>) {
@@ -56,5 +56,3 @@ class ValidationGroup<Fields extends string> {
     this.loopValidations((validation) => validation.dispose);
   }
 }
-
-export default ValidationGroup;

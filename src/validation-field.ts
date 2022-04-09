@@ -10,7 +10,7 @@ export interface ValidationFieldParams {
 /**
  * Validation Field
  */
-class ValidationField {
+export class ValidationField {
   private model: Validatable;
   private adapter: ValidationAdapter;
   private property: string;
@@ -111,5 +111,3 @@ class ValidationField {
     this.modelSubscription();
   }
 }
-
-export default ValidationField;

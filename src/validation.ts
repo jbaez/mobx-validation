@@ -1,4 +1,4 @@
-import ValidationField from './validation-field';
+import { ValidationField } from './validation-field';
 import { makeObservable, observable, computed, action } from 'mobx';
 
 export interface Validatable {
@@ -21,7 +21,7 @@ export type ValidationFields = {
 /**
  * Validation
  */
-class Validation {
+export class Validation {
   fields: ValidationFields = {};
   private isEnabled = false;
   private errorsInit = false; // abort early flag
@@ -103,5 +103,3 @@ class Validation {
     this.fields = {};
   }
 }
-
-export default Validation;
