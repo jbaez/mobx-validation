@@ -1,4 +1,4 @@
-import { Validatable, ValidationAdapter } from './validation';
+import { Validatable, ValidationAdapter, ValidationError } from './validation';
 import { makeObservable, observable, computed, action, reaction } from 'mobx';
 
 export interface ValidationFieldParams {
@@ -14,7 +14,7 @@ export class ValidationField {
   private model: Validatable;
   private adapter: ValidationAdapter;
   private property: string;
-  private currentError = '';
+  private currentError: ValidationError;
   private isEnabled = false;
   private inProgressCount = 0;
   private modelSubscription;
@@ -35,7 +35,7 @@ export class ValidationField {
       | 'removeInProgressCount'
     >(this, {
       error: computed,
-      currentError: observable,
+      currentError: observable.ref,
       setCurrentError: action,
       isEnabled: observable,
       setEnable: action,
@@ -55,7 +55,7 @@ export class ValidationField {
   private validationMemo = computed(
     async () => {
       if (!this.isEnabled) {
-        this.setCurrentError('');
+        this.setCurrentError([]);
         return true;
       }
       this.addInProgressCount();
@@ -78,7 +78,7 @@ export class ValidationField {
     this.validationMemo.get().catch(() => undefined); // handle error
   }
 
-  private setCurrentError(error: string) {
+  private setCurrentError(error: ValidationError) {
     this.currentError = error;
   }
 
@@ -91,7 +91,14 @@ export class ValidationField {
   }
 
   get error(): string {
-    return this.currentError;
+    const error = this.currentError;
+    if (!error) {
+      return '';
+    }
+    if (typeof error == 'string') {
+      return error;
+    }
+    return error.find((value) => typeof value == 'string') || '';
   }
 
   get isValidating(): boolean {
@@ -100,6 +107,16 @@ export class ValidationField {
 
   async isValid(): Promise<boolean> {
     return this.validationMemo.get();
+  }
+
+  /**
+   * Gets error for an array validation item by index.
+   */
+  getArrayErrorAt(index: number): string | undefined {
+    if (!this.currentError || typeof this.currentError == 'string') {
+      return;
+    }
+    return this.currentError.at(index) || undefined;
   }
 
   setEnable(enable: boolean) {

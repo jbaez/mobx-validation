@@ -10,44 +10,57 @@ Validates models with observables. Runs the validation automatically on a field 
 class ModelTest {
   email = '';
   age = 16;
+  otherEmails: string= [];
   constructor() {
     makeObservable(this, {
       email: observable,
       age: observable,
       setEmail: action,
       setAge: action,
+      otherEmails: observable.ref,
+      setOtherEmails: action,
     });
   }
-  /**
-   * Set email
-   * @param {string} email Email
-   */
+
   setEmail(email: string) {
     this.email = email;
   }
 
-  /**
-   * Set age
-   * @param {number} age Age
-   */
   setAge(age: number) {
     this.age = age;
   }
-}
 
+  setOtherEmails(emails: string[]) {
+    this.otherEmails = [...emails];
+  }
+}
+const model = new ModelTest();
 const schema = yup.object({
   email: string()
     .email()
     .required(),
   age: number().min(18).integer().required(),
+  otherEmails: array().of(string().required().email()),
 });
-const adapter = new YupAdapter(getValidationSchema());
+const adapter = new YupAdapter(schema);
 const validation = new Validation(model, adapter);
 
-// until validation is not enabled it is considered valid (to be used on submit)
-validation.setEnable(true);
+model.setEmail('invalid-email');
+model.setAge(0);
+model.setOtherEmails([
+  'valid@email.com',
+  'invalid-email'
+])
 
+// until validation is not enabled it is considered valid.
+validation.hasErrors // false;
+// Set validation enabled (to be used on submit)
+validation.setEnable(true);
+await validation.isValid();
+validation.hasErrors // true;
 validation.fields.email.error // error message
 validation.fields.age.error // error message
-validation.hasErrors // true;
+validation.fields.otherEmails.error // error message
+validation.fields.otherEmails.getArrayErrorAt(0) // undefined
+validation.fields.otherEmails.getArrayErrorAt(1) // second item error message
 ```

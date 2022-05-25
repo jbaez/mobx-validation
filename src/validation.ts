@@ -6,8 +6,8 @@ export interface Validatable {
   [key: string]: any;
 }
 
-// If is a string indicates it has error
-export type ValidationError = string | undefined;
+export type ValidationArrayError = (string | null)[];
+export type ValidationError = string | ValidationArrayError | undefined;
 
 export interface ValidationAdapter {
   // Returns the fields to validate. Empty defaults to all props of model.

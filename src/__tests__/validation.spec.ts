@@ -2,7 +2,7 @@ import { Validation, Validatable, ValidationFields } from '../validation';
 import { ValidationGroup } from '../validation-group';
 import { YupAdapter } from '../adapters/yup-adapter';
 import { makeObservable, observable, action, reaction } from 'mobx';
-import { string, number, object, ObjectSchema } from 'yup';
+import { string, number, array, object, ObjectSchema } from 'yup';
 
 /**
  * Remote validation method mock
@@ -19,6 +19,7 @@ const remoteValidationMock = jest
 class ModelTest implements Validatable {
   email = '';
   age = 16;
+  otherEmails: string[] = [];
   notValidatedProp = 1;
   constructor() {
     makeObservable(this, {
@@ -26,22 +27,21 @@ class ModelTest implements Validatable {
       age: observable,
       setEmail: action,
       setAge: action,
+      otherEmails: observable.ref,
+      setOtherEmails: action,
     });
   }
-  /**
-   * Set email
-   * @param {string} email Email
-   */
+
   setEmail(email: string) {
     this.email = email;
   }
 
-  /**
-   * Set age
-   * @param {number} age Age
-   */
   setAge(age: number) {
     this.age = age;
+  }
+
+  setOtherEmails(emails: string[]) {
+    this.otherEmails = [...emails];
   }
 }
 
@@ -57,6 +57,7 @@ function getValidationSchema(
         return response.result;
       }),
     age: number().min(18).integer().required(),
+    otherEmails: array().of(string().required().email()),
   });
 }
 
@@ -226,6 +227,29 @@ describe('Validation', () => {
       await expect(sut.isValid()).resolves.toBe(false);
       // should run remote validation if the email field changes
       expect(remoteValidationMock).toHaveBeenCalledTimes(2);
+    });
+
+    it('validates arrays and gets individual errors', async () => {
+      model.setAge(18);
+      model.setEmail('test@test.com');
+      model.setOtherEmails(['valid@test.com']);
+      sut.setEnable(true);
+      await expect(sut.isValid()).resolves.toBe(true);
+      model.setOtherEmails([
+        'valid@test.com',
+        'not-valid',
+        'also-valid@test.com',
+        'also-not-valid',
+      ]);
+      await expect(sut.isValid()).resolves.toBe(false);
+      expect(sut.hasErrors).toBe(true);
+      const otherEmailsField = sut.fields.otherEmails;
+      expect(otherEmailsField.error).toBeTruthy();
+      expect(otherEmailsField.getArrayErrorAt(0)).toBeUndefined();
+      expect(otherEmailsField.getArrayErrorAt(1)).toBeTruthy();
+      expect(otherEmailsField.getArrayErrorAt(2)).toBeUndefined();
+      expect(otherEmailsField.getArrayErrorAt(3)).toBeTruthy();
+      expect(otherEmailsField.getArrayErrorAt(9)).toBeUndefined();
     });
   });
 

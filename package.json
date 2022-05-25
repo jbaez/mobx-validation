@@ -14,9 +14,21 @@
     "format:check": "prettier -c ./src",
     "test": "jest"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": [
+    "validation",
+    "mobx",
+    "yup"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jbaez/mobx-validation.git"
+  },
+  "author": "Jaime Baez",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/jbaez/mobx-validation/issues"
+  },
+  "homepage": "https://github.com/jbaez/mobx-validation#readme",
   "devDependencies": {
     "@babel/core": "^7.17.9",
     "@babel/preset-env": "^7.16.11",
