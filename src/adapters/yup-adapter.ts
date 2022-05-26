@@ -32,7 +32,7 @@ function getError(
   if (errors.length == 0) {
     return message;
   }
-  const regex = new RegExp(`^${property}\\[(.*)\\].*$`);
+  const regex = new RegExp(`^${property}\\[(.*(\\d).*)\\].*$`);
   const result = regex.exec(errors[0]);
   if (result && result.length) {
     const validationErrors: ValidationArrayError = error.errors.reduce(
