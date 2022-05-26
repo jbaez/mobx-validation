@@ -1,4 +1,5 @@
 import { ValidationField } from './validation-field';
+import { getAdapter } from './configuration';
 import { makeObservable, observable, computed, action } from 'mobx';
 
 export interface Validatable {
@@ -32,7 +33,10 @@ export class Validation {
    * Constructor.
    * @param model Model with validation.
    */
-  constructor(model: Validatable, adapter: ValidationAdapter) {
+  constructor(model: Validatable, adapter?: ValidationAdapter) {
+    if (!adapter) {
+      adapter = getAdapter(model);
+    }
     // setup validation fields
     const fields = adapter.getFields(model);
     if (fields.length) {
