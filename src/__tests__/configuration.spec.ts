@@ -61,8 +61,8 @@ describe('validation global configuration', () => {
   });
 
   it('configures adapter globally using a factory function', async () => {
-    const factory: ValidationAdapterFactory = (model) => {
-      return new YupAdapter((model as SelfValidatable).getValidation());
+    const factory: ValidationAdapterFactory<SelfValidatable> = (model) => {
+      return new YupAdapter(model.getValidation());
     };
     configure({
       adapter: factory,

@@ -109,9 +109,9 @@ class ModelTest implements SelfValidatable {
   }
 }
 
-const factory: ValidationAdapterFactory = (model) => {
-  return new YupAdapter((model as SelfValidatable).getValidation());
-};
+const factory: ValidationAdapterFactory<SelfValidatable> = (model) => {
+      return new YupAdapter(model.getValidation());
+    };
 
 configure({
   adapter: factory,

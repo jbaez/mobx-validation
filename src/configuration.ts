@@ -1,10 +1,10 @@
 import { ValidationAdapter, Validatable } from './validation';
 
-export type ValidationAdapterFactory = (
-  model: Validatable
+export type ValidationAdapterFactory<T extends Validatable> = (
+  model: T
 ) => ValidationAdapter;
 
-type AdapterConfiguration = ValidationAdapter | ValidationAdapterFactory;
+type AdapterConfiguration = ValidationAdapter | ValidationAdapterFactory<any>;
 
 interface Configuration {
   adapter?: AdapterConfiguration;
@@ -12,9 +12,9 @@ interface Configuration {
 
 let _adapter: AdapterConfiguration | undefined;
 
-function isAdapterFactory(
+function isAdapterFactory<T extends Validatable>(
   adapter: AdapterConfiguration
-): adapter is ValidationAdapterFactory {
+): adapter is ValidationAdapterFactory<T> {
   return typeof adapter == 'function';
 }
 
