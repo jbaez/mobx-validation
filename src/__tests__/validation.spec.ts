@@ -45,6 +45,9 @@ class ModelTest implements Validatable {
   }
 }
 
+const otherEmailsRequired = 'this is required';
+const otherEmailsValid = 'must be a valid email';
+
 function getValidationSchema(
   remoteValid = true
 ): ObjectSchema<{ email: string; age: number }> {
@@ -57,7 +60,9 @@ function getValidationSchema(
         return response.result;
       }),
     age: number().min(18).integer().required(),
-    otherEmails: array().of(string().required().email()),
+    otherEmails: array().of(
+      string().required(otherEmailsRequired).email(otherEmailsValid)
+    ),
   });
 }
 
@@ -240,15 +245,17 @@ describe('Validation', () => {
         'not-valid',
         'also-valid@test.com',
         'also-not-valid',
+        '',
       ]);
       await expect(sut.isValid()).resolves.toBe(false);
       expect(sut.hasErrors).toBe(true);
       const otherEmailsField = sut.fields.otherEmails;
       expect(otherEmailsField.error).toBeTruthy();
       expect(otherEmailsField.getArrayErrorAt(0)).toBeUndefined();
-      expect(otherEmailsField.getArrayErrorAt(1)).toBeTruthy();
+      expect(otherEmailsField.getArrayErrorAt(1)).toEqual(otherEmailsValid);
       expect(otherEmailsField.getArrayErrorAt(2)).toBeUndefined();
-      expect(otherEmailsField.getArrayErrorAt(3)).toBeTruthy();
+      expect(otherEmailsField.getArrayErrorAt(3)).toEqual(otherEmailsValid);
+      expect(otherEmailsField.getArrayErrorAt(4)).toEqual(otherEmailsRequired);
       expect(otherEmailsField.getArrayErrorAt(9)).toBeUndefined();
     });
   });

@@ -28,20 +28,20 @@ function getError(
   property: string
 ): ValidationError {
   const message = error.message;
-  const errors = error.errors;
+  const errors = error.inner;
   if (errors.length == 0) {
     return message;
   }
-  const regex = new RegExp(`^${property}\\[.*(\\d).*\\].*$`);
-  const result = regex.exec(errors[0]);
+  const regex = new RegExp(`^${property}\\[.*(\\d).*\\]$`);
+  const result = regex.exec(errors[0].path || '');
   if (result && result.length) {
-    const validationErrors: ValidationArrayError = error.errors.reduce(
+    const validationErrors: ValidationArrayError = errors.reduce(
       (valErrors, errorItem) => {
-        const result = regex.exec(errorItem);
+        const result = regex.exec(errorItem.path || '');
         if (result && result.length > 1) {
           const index = parseInt(result[1], 10);
           fillIndexes(valErrors, index);
-          valErrors[index] = errorItem;
+          valErrors[index] = errorItem.message;
         }
         return valErrors;
       },
