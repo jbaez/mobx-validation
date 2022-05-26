@@ -3,7 +3,6 @@ import { getAdapter } from './configuration';
 import { makeObservable, observable, computed, action } from 'mobx';
 
 export interface Validatable {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any;
 }
 
