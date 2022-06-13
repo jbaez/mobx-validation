@@ -1,6 +1,6 @@
 {
   "name": "mobx-validation",
-  "version": "0.2.4",
+  "version": "0.3.0",
   "description": "Validation library using Mobx observables",
   "main": "dist/index.js",
   "files": [
