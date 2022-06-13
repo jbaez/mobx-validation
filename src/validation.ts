@@ -66,6 +66,7 @@ export class Validation {
       setEnable: action,
       isEnabled: observable,
       hasErrors: computed,
+      dispose: action,
     });
   }
 
