@@ -116,7 +116,7 @@ export class ValidationField {
     if (!this.currentError || typeof this.currentError == 'string') {
       return;
     }
-    return this.currentError.at(index) || undefined;
+    return this.currentError[index] || undefined;
   }
 
   setEnable(enable: boolean) {
