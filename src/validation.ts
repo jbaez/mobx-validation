@@ -2,10 +2,7 @@ import { ValidationField } from './validation-field';
 import { getAdapter } from './configuration';
 import { makeObservable, observable, computed, action } from 'mobx';
 
-export interface Validatable {
-  [key: string]: any;
-}
-
+export type Validatable = Record<string, any>;
 export type ValidationArrayError = (string | null)[];
 export type ValidationError = string | ValidationArrayError | undefined;
 
@@ -16,15 +13,15 @@ export interface ValidationAdapter {
   validate: (model: Validatable, property: string) => Promise<ValidationError>;
 }
 
-export type ValidationFields = {
-  [key: string]: ValidationField;
+export type ValidationFields<T extends Validatable> = {
+  [K in keyof T]?: ValidationField;
 };
 
 /**
  * Validation
  */
-export class Validation {
-  fields: ValidationFields = {};
+export class Validation<T extends Validatable> {
+  fields: ValidationFields<T> = {};
   private isEnabled = false;
   private errorsInit = false; // abort early flag
 
@@ -32,7 +29,7 @@ export class Validation {
    * Constructor.
    * @param model Model with validation.
    */
-  constructor(model: Validatable, adapter?: ValidationAdapter) {
+  constructor(model: T, adapter?: ValidationAdapter) {
     if (!adapter) {
       adapter = getAdapter(model);
     }
@@ -40,6 +37,7 @@ export class Validation {
     const fields = adapter.getFields(model);
     if (fields.length) {
       for (const field of fields) {
+        //@ts-expect-error The string field should be an index of fields
         this.fields[field] = new ValidationField({
           model: model,
           adapter,
@@ -61,7 +59,7 @@ export class Validation {
     }
 
     // setup observables
-    makeObservable<Validation, 'isEnabled'>(this, {
+    makeObservable<Validation<T>, 'isEnabled'>(this, {
       fields: observable,
       setEnable: action,
       isEnabled: observable,
@@ -76,6 +74,7 @@ export class Validation {
     }
     for (const prop in this.fields) {
       const field = this.fields[prop];
+      if (!field) continue;
       if (field.error || field.isValidating) {
         return true;
       }
@@ -90,7 +89,7 @@ export class Validation {
   setEnable(enable: boolean) {
     this.isEnabled = enable;
     for (const prop in this.fields) {
-      this.fields[prop].setEnable(this.isEnabled);
+      this.fields[prop]?.setEnable(this.isEnabled);
     }
   }
 
@@ -103,7 +102,7 @@ export class Validation {
     }
     const promises = [];
     for (const prop in this.fields) {
-      promises.push(this.fields[prop].isValid());
+      promises.push(this.fields[prop]?.isValid());
     }
     const results = await Promise.allSettled(promises);
     if (!this.errorsInit) {
@@ -117,7 +116,7 @@ export class Validation {
    */
   dispose() {
     for (const prop in this.fields) {
-      this.fields[prop].dispose();
+      this.fields[prop]?.dispose();
     }
     this.fields = {};
   }

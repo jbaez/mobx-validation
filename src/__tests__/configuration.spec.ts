@@ -5,7 +5,7 @@ import { YupAdapter } from '../adapters/yup-adapter';
 import { string, number, object, ObjectSchema } from 'yup';
 
 interface SelfValidatable {
-  getValidation: () => ObjectSchema<unknown>;
+  getValidation: () => ObjectSchema<any>;
 }
 
 /**

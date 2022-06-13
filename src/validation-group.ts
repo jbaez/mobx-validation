@@ -1,20 +1,20 @@
-import { Validation } from './validation';
+import { Validatable, Validation } from './validation';
 import { makeObservable, computed } from 'mobx';
 
 /**
  * Validation Group
  */
-export class ValidationGroup<Fields extends string> {
-  readonly item: Record<Fields, Validation>;
+export class ValidationGroup<Fields extends string, T extends Validatable> {
+  readonly item: Record<Fields, Validation<T>>;
 
-  constructor(validations: Record<Fields, Validation>) {
+  constructor(validations: Record<Fields, Validation<T>>) {
     this.item = validations;
     makeObservable(this, {
       hasErrors: computed,
     });
   }
 
-  private loopValidations(callback: (validation: Validation) => void) {
+  private loopValidations(callback: (validation: Validation<T>) => void) {
     for (const key in this.item) {
       callback(this.item[key]);
     }

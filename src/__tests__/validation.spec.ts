@@ -70,7 +70,7 @@ function getValidationSchema(
  * Test suite
  */
 describe('Validation', () => {
-  let sut: Validation;
+  let sut: Validation<ModelTest>;
   let model: ModelTest;
   let adapter: YupAdapter;
 
@@ -82,33 +82,33 @@ describe('Validation', () => {
     });
 
     it('validates model values with "isValid" and sets errors', async () => {
-      let fields: ValidationFields;
+      let fields: ValidationFields<ModelTest>;
       await expect(sut.isValid()).resolves.toBe(true);
       fields = sut.fields;
-      expect(fields.email.error).toBeFalsy();
-      expect(fields.age.error).toBeFalsy();
+      expect(fields.email?.error).toBeFalsy();
+      expect(fields.age?.error).toBeFalsy();
       expect(sut.hasErrors).toBeFalsy();
 
       sut.setEnable(true);
       await expect(sut.isValid()).resolves.toBe(false);
       fields = sut.fields;
       expect(sut.hasErrors).toBeTruthy();
-      expect(fields.email.error).toBeTruthy();
-      expect(fields.age.error).toBeTruthy();
+      expect(fields.email?.error).toBeTruthy();
+      expect(fields.age?.error).toBeTruthy();
 
       model.setAge(18);
       model.setEmail('invalid');
       await expect(sut.isValid()).resolves.toBe(false);
       fields = sut.fields;
-      expect(fields.email.error).toBeTruthy();
-      expect(fields.age.error).toBeFalsy();
+      expect(fields.email?.error).toBeTruthy();
+      expect(fields.age?.error).toBeFalsy();
       expect(sut.hasErrors).toBeTruthy();
 
       model.setEmail('test@test.com');
       await expect(sut.isValid()).resolves.toBe(true);
       fields = sut.fields;
-      expect(fields.email.error).toBeFalsy();
-      expect(fields.age.error).toBeFalsy();
+      expect(fields.email?.error).toBeFalsy();
+      expect(fields.age?.error).toBeFalsy();
       expect(sut.hasErrors).toBeFalsy();
     });
 
@@ -118,7 +118,7 @@ describe('Validation', () => {
         resolveChangeWait = resolve;
       });
       const subscription = reaction(
-        () => sut.fields.age.error,
+        () => sut.fields.age?.error,
         () => {
           resolveChangeWait(true);
         }
@@ -126,8 +126,8 @@ describe('Validation', () => {
       sut.setEnable(true);
       await waitForChange;
       subscription();
-      expect(sut.fields.age.error).toBeTruthy();
-      expect(sut.fields.email.error).toBeTruthy();
+      expect(sut.fields.age?.error).toBeTruthy();
+      expect(sut.fields.email?.error).toBeTruthy();
       expect(sut.hasErrors).toBeTruthy();
     });
 
@@ -140,7 +140,7 @@ describe('Validation', () => {
         resolveChangeWait = resolve;
       });
       const subscription = reaction(
-        () => sut.fields.age.error,
+        () => sut.fields.age?.error,
         () => {
           resolveChangeWait(true);
         }
@@ -150,8 +150,8 @@ describe('Validation', () => {
       await waitForChange;
       subscription();
       // errors should clear reactively
-      expect(sut.fields.age.error).toBeFalsy();
-      expect(sut.fields.email.error).toBeFalsy();
+      expect(sut.fields.age?.error).toBeFalsy();
+      expect(sut.fields.email?.error).toBeFalsy();
       expect(sut.hasErrors).toBeFalsy();
       // and validation should pass now
       await expect(sut.isValid()).resolves.toBe(true);
@@ -160,20 +160,20 @@ describe('Validation', () => {
     it('re-validates reactively on value change', async () => {
       model.setEmail('test@test.com');
       sut.setEnable(true);
-      expect(sut.fields.age.error).toBeFalsy();
+      expect(sut.fields.age?.error).toBeFalsy();
       let resolveChangeWait: (value: boolean) => void;
       const waitForChange = new Promise((resolve) => {
         resolveChangeWait = resolve;
       });
       const subscription = reaction(
-        () => sut.fields.age.error,
+        () => sut.fields.age?.error,
         () => {
           resolveChangeWait(true);
         }
       );
       model.setAge(12);
       await waitForChange;
-      expect(sut.fields.age.error).toBeTruthy();
+      expect(sut.fields.age?.error).toBeTruthy();
       subscription();
     });
 
@@ -191,7 +191,7 @@ describe('Validation', () => {
         resolveChangeWait = resolve;
       });
       const subscription = reaction(
-        () => sut.fields.age.error,
+        () => sut.fields.age?.error,
         (val) => {
           // wait error clear when age is 18
           if (!val) {
@@ -204,8 +204,8 @@ describe('Validation', () => {
       model.setAge(18);
       await waitForChange;
       subscription();
-      expect(sut.fields.age.error).toBeFalsy();
-      expect(sut.fields.email.error).toBeFalsy();
+      expect(sut.fields.age?.error).toBeFalsy();
+      expect(sut.fields.email?.error).toBeFalsy();
     });
 
     it('trigger hasErrors if a validation is in progress', async () => {
@@ -250,13 +250,13 @@ describe('Validation', () => {
       await expect(sut.isValid()).resolves.toBe(false);
       expect(sut.hasErrors).toBe(true);
       const otherEmailsField = sut.fields.otherEmails;
-      expect(otherEmailsField.error).toBeTruthy();
-      expect(otherEmailsField.getArrayErrorAt(0)).toBeUndefined();
-      expect(otherEmailsField.getArrayErrorAt(1)).toEqual(otherEmailsValid);
-      expect(otherEmailsField.getArrayErrorAt(2)).toBeUndefined();
-      expect(otherEmailsField.getArrayErrorAt(3)).toEqual(otherEmailsValid);
-      expect(otherEmailsField.getArrayErrorAt(4)).toEqual(otherEmailsRequired);
-      expect(otherEmailsField.getArrayErrorAt(9)).toBeUndefined();
+      expect(otherEmailsField?.error).toBeTruthy();
+      expect(otherEmailsField?.getArrayErrorAt(0)).toBeUndefined();
+      expect(otherEmailsField?.getArrayErrorAt(1)).toEqual(otherEmailsValid);
+      expect(otherEmailsField?.getArrayErrorAt(2)).toBeUndefined();
+      expect(otherEmailsField?.getArrayErrorAt(3)).toEqual(otherEmailsValid);
+      expect(otherEmailsField?.getArrayErrorAt(4)).toEqual(otherEmailsRequired);
+      expect(otherEmailsField?.getArrayErrorAt(9)).toBeUndefined();
     });
   });
 
@@ -273,8 +273,8 @@ describe('Validation', () => {
       sut.setEnable(true);
       await expect(sut.isValid()).resolves.toBe(false);
       const fields = sut.fields;
-      expect(fields.email.error).toEqual('email is already in use'); // message from custom validator above
-      expect(fields.age.error).toBeFalsy();
+      expect(fields.email?.error).toEqual('email is already in use'); // message from custom validator above
+      expect(fields.age?.error).toBeFalsy();
       expect(sut.hasErrors).toBeTruthy();
     });
   });
@@ -283,10 +283,10 @@ describe('Validation', () => {
 type ValidationGroupKeys = 'first' | 'second';
 
 describe('Validation Group', () => {
-  let validations: Record<ValidationGroupKeys, Validation>;
+  let validations: Record<ValidationGroupKeys, Validation<ModelTest>>;
   let firstModel: ModelTest;
   let secondModel: ModelTest;
-  let sut: ValidationGroup<ValidationGroupKeys>;
+  let sut: ValidationGroup<ValidationGroupKeys, ModelTest>;
   const adapter = new YupAdapter(getValidationSchema());
 
   beforeEach(() => {
@@ -296,52 +296,52 @@ describe('Validation Group', () => {
       first: new Validation(firstModel, adapter),
       second: new Validation(secondModel, adapter),
     };
-    sut = new ValidationGroup<ValidationGroupKeys>(validations);
+    sut = new ValidationGroup(validations);
   });
 
   it('validates group with `isValid` and sets errors', async () => {
-    let firstFields;
-    let secondFields;
+    let firstFields: ValidationFields<ModelTest>;
+    let secondFields: ValidationFields<ModelTest>;
     await expect(sut.isValid()).resolves.toBe(true);
-    firstFields = sut.item['first'].fields;
-    secondFields = sut.item['second'].fields;
-    expect(firstFields.email.error).toBeFalsy();
-    expect(firstFields.age.error).toBeFalsy();
-    expect(firstFields.hasErrors).toBeFalsy();
-    expect(secondFields.email.error).toBeFalsy();
-    expect(secondFields.age.error).toBeFalsy();
-    expect(secondFields.hasErrors).toBeFalsy();
+    firstFields = sut.item.first.fields;
+    secondFields = sut.item.second.fields;
+    expect(firstFields.email?.error).toBeFalsy();
+    expect(firstFields.age?.error).toBeFalsy();
+    expect(sut.item.first.hasErrors).toBeFalsy();
+    expect(secondFields.email?.error).toBeFalsy();
+    expect(secondFields.age?.error).toBeFalsy();
+    expect(sut.item.second.hasErrors).toBeFalsy();
 
     sut.setEnable(true);
     await expect(sut.isValid()).resolves.toBe(false);
-    firstFields = sut.item['first'].fields;
-    secondFields = sut.item['second'].fields;
-    expect(firstFields.email.error).toBeTruthy();
-    expect(firstFields.age.error).toBeTruthy();
-    expect(secondFields.email.error).toBeTruthy();
-    expect(secondFields.age.error).toBeTruthy();
+    firstFields = sut.item.first.fields;
+    secondFields = sut.item.second.fields;
+    expect(firstFields.email?.error).toBeTruthy();
+    expect(firstFields.age?.error).toBeTruthy();
+    expect(secondFields.email?.error).toBeTruthy();
+    expect(secondFields.age?.error).toBeTruthy();
     expect(sut.hasErrors).toBeTruthy();
 
     firstModel.setEmail('test@test.com');
     firstModel.setAge(18);
     await expect(sut.isValid()).resolves.toBe(false);
-    firstFields = sut.item['first'].fields;
-    secondFields = sut.item['second'].fields;
-    expect(firstFields.email.error).toBeFalsy();
-    expect(firstFields.age.error).toBeFalsy();
-    expect(secondFields.email.error).toBeTruthy();
-    expect(secondFields.age.error).toBeTruthy();
+    firstFields = sut.item.first.fields;
+    secondFields = sut.item.second.fields;
+    expect(firstFields.email?.error).toBeFalsy();
+    expect(firstFields.age?.error).toBeFalsy();
+    expect(secondFields.email?.error).toBeTruthy();
+    expect(secondFields.age?.error).toBeTruthy();
     expect(sut.hasErrors).toBeTruthy();
 
     secondModel.setEmail('test@test.com');
     secondModel.setAge(18);
     await expect(sut.isValid()).resolves.toBe(true);
-    firstFields = sut.item['first'].fields;
-    secondFields = sut.item['second'].fields;
-    expect(firstFields.email.error).toBeFalsy();
-    expect(firstFields.age.error).toBeFalsy();
-    expect(secondFields.email.error).toBeFalsy();
-    expect(secondFields.age.error).toBeFalsy();
+    firstFields = sut.item.first.fields;
+    secondFields = sut.item.second.fields;
+    expect(firstFields.email?.error).toBeFalsy();
+    expect(firstFields.age?.error).toBeFalsy();
+    expect(secondFields.email?.error).toBeFalsy();
+    expect(secondFields.age?.error).toBeFalsy();
     expect(sut.hasErrors).toBeFalsy();
   });
 });
