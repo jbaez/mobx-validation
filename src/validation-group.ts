@@ -4,10 +4,12 @@ import { makeObservable, computed } from 'mobx';
 /**
  * Validation Group
  */
-export class ValidationGroup<Fields extends string, T extends Validatable> {
-  readonly item: Record<Fields, Validation<T>>;
+export class ValidationGroup<
+  T extends Record<string, Validation<Validatable>>
+> {
+  readonly item: T;
 
-  constructor(validations: Record<Fields, Validation<T>>) {
+  constructor(validations: T) {
     this.item = validations;
     makeObservable(this, {
       hasErrors: computed,

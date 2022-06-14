@@ -280,23 +280,24 @@ describe('Validation', () => {
   });
 });
 
-type ValidationGroupKeys = 'first' | 'second';
+type Validations = {
+  first: Validation<ModelTest>;
+  second: Validation<ModelTest>;
+};
 
 describe('Validation Group', () => {
-  let validations: Record<ValidationGroupKeys, Validation<ModelTest>>;
   let firstModel: ModelTest;
   let secondModel: ModelTest;
-  let sut: ValidationGroup<ValidationGroupKeys, ModelTest>;
+  let sut: ValidationGroup<Validations>;
   const adapter = new YupAdapter(getValidationSchema());
 
   beforeEach(() => {
     firstModel = new ModelTest();
     secondModel = new ModelTest();
-    validations = {
+    sut = new ValidationGroup({
       first: new Validation(firstModel, adapter),
       second: new Validation(secondModel, adapter),
-    };
-    sut = new ValidationGroup(validations);
+    });
   });
 
   it('validates group with `isValid` and sets errors', async () => {
